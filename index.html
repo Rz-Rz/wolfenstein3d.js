@@ -2,103 +2,212 @@
 <style> html, body { margin: 0; padding: 0; } </style>
 <canvas id="screen" style="width: 100%; height: 100%;"></canvas>
 <script>
+	'use strict'
 
-const canvas = document.getElementById('screen');
-const ctx = canvas.getContext('2d');
-//map
-const MAP_SIZE = 16;
-const MAP_SCALE = 10;
-const MAP_RANGE = MAP_SIZE * MAP_SCALE;
-const MAP_SPEED = (MAP_SCALE / 2) / 10;
-let map = 
-	[
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	const canvas = document.getElementById('screen');
+	const ctx = canvas.getContext('2d');
+	//map
+	const MAP_SIZE = 16;
+	const MAP_SCALE = 10;
+	const MAP_RANGE = MAP_SIZE * MAP_SCALE;
+	const MAP_SPEED = (MAP_SCALE / 2) / 10;
+	let map =
+		[
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 
-	];
+		];
 
-//FPS
-const FPS = 60;
-const cycleDelay = Math.floor(1000 / FPS);
-let oldCycleTime = 0;
-let cycleCount = 0;
-let fpsRate  = 'calculating...';
-
-//screen
-const WIDTH=300, HALF_WIDTH=WIDTH/2;
-const HEIGHT=200, HALF_HEIGHT=HEIGHT/2;
-
-let i = 0;
-//game looop
-function gameLoop() 
-{
-	//calculate fps
-
-	cycleCount++;
-	if (cycleCount >= 60) 
-	{
-		cycleCount = 0;
-	}
-	let startTime = Date.now();
-	let cycleTime = startTime - oldCycleTime;
-	oldCycleTime = startTime;
-	if (cycleCount % 60 == 0)
-	{
-		fpsRate = Math.floor(1000 / cycleTime);
-	}
-
-	canvas.width = window.innerWidth * 0.3;
-	canvas.height = window.innerHeight  * 0.3;
-
-	// update screen
-	ctx.fillStyle = 'white';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = 'black';
-	ctx.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
+	//player
+	var playerX = MAP_SCALE + 20;
+	var playerY = MAP_SCALE + 20;
+	var playerAngle = Math.PI / 3;
+	var playerMoveX = 0;
+	var playerMoveY = 0;
+	var playerMoveAngle = 0;
 
 
-	//draw map
-	for (var row = 0; row < MAP_SIZE; row++) 
-	{
-		for (var col = 0; col < MAP_SIZE; col++) 
-		{
-			var square = row * MAP_SIZE + col;
-			if (map[square] == 1)
-			{
-				ctx.fillStyle = '#555';
-				ctx.fillRect(Math.floor(canvas.width / 2 - MAP_RANGE / 2) + col * MAP_SCALE, Math.floor(canvas.height / 2 - MAP_RANGE / 2) + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+	//handle user input
+	/*
+		document.onKeyDown = function(event) {
+			switch (event) {
+				case 37: //left
+					playerMoveAngle = -Math.PI / 60;
+					break;
+				case 38: //up
+					playerMoveX = Math.cos(playerAngle) * MAP_SPEED;
+					playerMoveY = Math.sin(playerAngle) * MAP_SPEED;
+					break;
+				case 39: //right
+					playerMoveAngle = Math.PI / 60;
+					break;
+				case 40: //down
+					playerMoveX = -Math.cos(playerAngle) * MAP_SPEED;
+					playerMoveY = -Math.sin(playerAngle) * MAP_SPEED;
+					break;
 			}
-			else
-			{
-				ctx.fillStyle = '#aaa';
-				ctx.fillRect(Math.floor(canvas.width / 2 - MAP_RANGE / 2) + col * MAP_SCALE, Math.floor(canvas.height / 2 - MAP_RANGE / 2) + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+		}
+		*/
+		document.onkeydown = function(event) {
+			console.log(event.keyCode);
+			switch (event.keyCode) {
+				case 37: //left
+					playerMoveAngle = 1;
+					break;
+				case 38: //up
+					playerMoveX = 1;
+					playerMoveY = 1;
+					break;
+				case 39: //right
+					playerMoveAngle = -1;
+					break;
+				case 40: //down
+					playerMoveX = -1;
+					playerMoveY = -1;
+					break;
 			}
+		}
+	document.onkeyup = function(event) {
+		switch (event.keyCode) {
+			case 37: //left
+				playerMoveAngle = 0;
+				break;
+			case 38: //up
+				playerMoveX = 0;
+				playerMoveY = 0;
+				break;
+			case 39: //right
+				playerMoveAngle = 0;
+				break;
+			case 40: //down
+				playerMoveX = 0;
+				playerMoveY = 0;
+				break;
 		}
 	}
 
+	//camera
+	const DOUBLEPIE = Math.PI * 2;
 
-	//draw fps
-	ctx.fillStyle = 'black';
-	ctx.font = '20px Arial';
-	ctx.fillText('FPS: ' + fpsRate, 10, 20);
+	//FPS
+	const FPS = 60;
+	const cycleDelay = Math.floor(1000 / FPS);
+	let oldCycleTime = 0;
+	let cycleCount = 0;
+	let fpsRate  = 'calculating...';
+
+	//screen
+	const WIDTH=300, HALF_WIDTH=WIDTH/2;
+	const HEIGHT=200, HALF_HEIGHT=HEIGHT/2;
+
+	let i = 0;
+	//game looop
+	function gameLoop()
+	{
+		//calculate fps
+
+		cycleCount++;
+		if (cycleCount >= 60)
+		{
+			cycleCount = 0;
+		}
+		let startTime = Date.now();
+		let cycleTime = startTime - oldCycleTime;
+		oldCycleTime = startTime;
+		if (cycleCount % 60 == 0)
+		{
+			fpsRate = Math.floor(1000 / cycleTime);
+		}
+
+		canvas.width = window.innerWidth * 0.3;
+		canvas.height = window.innerHeight  * 0.3;
+
+		// update screen
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = 'black';
+		ctx.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
+
+		//update player position
+		var playerOffsetX =  Math.sin(playerAngle) * MAP_SPEED;
+		var playerOffsetY =  Math.cos(playerAngle) * MAP_SPEED;
+		var mapTargetX = Math.floor((playerY / MAP_SCALE)) * MAP_SIZE + Math.floor((playerX + playerOffsetX * playerMoveX) / MAP_SCALE);
+		var mapTargetY = Math.floor((playerY + playerOffsetY * playerMoveY) / MAP_SCALE) * MAP_SIZE + Math.floor((playerX / MAP_SCALE));
+
+		if (playerMoveX != 0 && map[mapTargetX] == 0)
+		{
+			playerX += playerOffsetX * playerMoveX * MAP_SPEED;
+			//	playerY += playerOffsetY * playerMoveX * MAP_SPEED;
+		}
+		if (playerMoveY != 0 && map[mapTargetY] == 0)
+		{
+			//	playerX -= playerOffsetY * playerMoveY * MAP_SPEED;
+			playerY += playerOffsetY * playerMoveY * MAP_SPEED;
+		}
+		if (playerMoveAngle != 0)
+		{
+			playerAngle += playerMoveAngle * 0.03;
+		}
 
 
-	//infine loop
-	setTimeout(gameLoop, cycleDelay);
-} window.onload = function () { gameLoop(); }
+		var mapOffsetX = Math.floor(canvas.width / 2 - MAP_RANGE / 2);
+		var mapOffsetY = Math.floor(canvas.height / 2 - MAP_RANGE / 2);
+		//draw map
+		for (var row = 0; row < MAP_SIZE; row++)
+		{
+			for (var col = 0; col < MAP_SIZE; col++)
+			{
+				var square = row * MAP_SIZE + col;
+				if (map[square] == 1)
+				{
+					ctx.fillStyle = '#555';
+					ctx.fillRect(mapOffsetX + col * MAP_SCALE,mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+				}
+				else
+				{
+					ctx.fillStyle = '#aaa';
+					ctx.fillRect(mapOffsetX + col * MAP_SCALE, mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+				}
+			}
+		}
+		//player dot
+		var playerMapX = playerX + mapOffsetX;
+		var playerMapY = playerY + mapOffsetY;
+		ctx.fillStyle = 'red';
+		ctx.beginPath();
+		ctx.arc(playerMapX, playerMapY, 2, 0, DOUBLEPIE);
+		ctx.fill();
+
+		ctx.strokeStyle = 'red';
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(playerMapX, playerMapY);
+		ctx.lineTo(playerMapX + Math.sin(playerAngle) * MAP_SCALE, playerMapY + Math.cos(playerAngle) * MAP_SCALE);
+		ctx.stroke();
+
+
+		//draw fps
+		ctx.fillStyle = 'black';
+		ctx.font = '20px Arial';
+		ctx.fillText('FPS: ' + fpsRate, 10, 20);
+
+
+		//infine loop
+		setTimeout(gameLoop, cycleDelay);
+	} window.onload = function () { gameLoop(); }
 
 </script>
