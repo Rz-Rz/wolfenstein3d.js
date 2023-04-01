@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refactored Game</title>
+    <style>
+        html, body { margin: 0; padding: 0; }
+        canvas { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+	<canvas id="screen"></canvas>
+	<script>
+		const canvas = document.getElementById('screen');
+		const ctx = canvas.getContext('2d');
+
+		const game = {
+			map: {
+				size: 16,
+				scale: 10,
+				range: null,
+				speed: null,
+				data: null,
+				init() {
+					this.range = this.size * this.scale;
+					this.speed = (this.scale / 2) / 10;
+					this.data = [
+						1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+						1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+					];
+				},
+				draw(offsetX, offsetY) {
+					for (let row = 0; row < this.size; row++) {
+						for (let col = 0; col < this.size; col++) {
+							const square = row * this.size + col;
+							ctx.fillStyle = this.data[square] === 1 ? '#555' : '#aaa';
+							ctx.fillRect(offsetX + col * this.scale, offsetY + row * this.scale, this.scale, this.scale);
+						}
+					}
+				}
+			},
+			player: {
+				x: null,
+				y: null,
+				angle: Math.PI / 3,
+				moveX: 0,
+				moveY: 0,
+				moveAngle: 0,
+				init() {
+					this.x = game.map.scale + 20;
+					this.y = game.map.scale + 20;
+				},
+				updatePosition() {
+					const offsetX = Math.sin(this.angle) * game.map.speed;
+					const offsetY = Math.cos(this.angle) * game.map.speed;
+					if (this.moveX !== 0) {
+						this.x += offsetX * this.moveX * game.map.speed;
+					}
+					if (this.moveY !== 0) {
+						this.y += offsetY * this.moveY * game.map.speed;
+					}
+					if (this.moveAngle !== 0) {
+						this.angle += this.moveAngle * 0.03;
+					}
+				},
+				draw(offsetX, offsetY) {
+					const playerMapX = this.x + offsetX;
+					const playerMapY = this.y + offsetY;
+
+					ctx.fillStyle = 'red';
+					ctx.beginPath();
+					ctx.arc(playerMapX, playerMapY, 2, 0, Math.PI * 2);
+					ctx.fill();
+
+					ctx.strokeStyle = 'red';
+					ctx.lineWidth = 1;
+					ctx.beginPath();
+					ctx.moveTo(playerMapX, playerMapY);
+					ctx.lineTo(playerMapX + Math.sin(this.angle) * game.map.scale, playerMapY + Math.cos(this.angle) * game.map.scale);
+					ctx.stroke();
+				}
+			},
+			input: {
+				init() {
+					document.onkeydown = (event) => {
+						switch (event.keyCode) {
+							case 37: // left
+								game.player.moveAngle = 1;
+								break;
+							case 38: // up
+								game.player.moveX = 1;
+								game.player.moveY = 1;
+								break;
+							case 39: // right
+								game.player.moveAngle = -1;
+								break;
+							case 40: // down
+								game.player.moveX
+							case 40: // down
+								game.player.moveX = -1;
+								game.player.moveY = -1;
+								break;
+						}
+					};
+
+					document.onkeyup = (event) => {
+						switch (event.keyCode) {
+							case 37: // left
+								game.player.moveAngle = 0;
+								break;
+							case 38: // up
+								game.player.moveX = 0;
+								game.player.moveY = 0;
+								break;
+							case 39: // right
+								game.player.moveAngle = 0;
+								break;
+							case 40: // down
+								game.player.moveX = 0;
+								game.player.moveY = 0;
+								break;
+						}
+					};
+				}
+			},
+			fps: {
+				delay: Math.floor(1000 / 60),
+				startTime: 0,
+				cycleCount: 0,
+				rate: 'calculating...',
+				update() {
+					this.cycleCount++;
+					if (this.cycleCount >= 60) {
+						this.cycleCount = 0;
+					}
+
+					const cycleTime = Date.now() - this.startTime;
+					this.startTime = Date.now();
+					if (this.cycleCount % 60 === 0) {
+						this.rate = Math.floor(1000 / cycleTime);
+					}
+				},
+				draw() {
+					ctx.fillStyle = 'black';
+					ctx.font = '20px Arial';
+					ctx.fillText('FPS: ' + this.rate, 10, 20);
+				}
+			},
+			init() {
+				this.map.init();
+				this.player.init();
+				this.input.init();
+			},
+			draw() {
+				canvas.width = window.innerWidth * 0.3;
+				canvas.height = window.innerHeight * 0.3;
+
+				ctx.fillStyle = 'white';
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				ctx.fillStyle = 'black';
+				ctx.fillRect(canvas.width / 2 - 150, canvas.height / 2 - 100, 300, 200);
+
+				const mapOffsetX = Math.floor(canvas.width / 2 - this.map.range / 2);
+				const mapOffsetY = Math.floor(canvas.height / 2 - this.map.range / 2);
+
+				this.map.draw(mapOffsetX, mapOffsetY);
+				this.player.draw(mapOffsetX, mapOffsetY);
+				this.fps.draw();
+			},
+			update() {
+				this.player.updatePosition();
+				this.fps.update();
+			},
+			loop() {
+				this.update();
+				this.draw();
+
+				setTimeout(() => this.loop(), this.fps.delay);
+			}
+		};
+
+		window.onload = () => {
+			game.init();
+			game.loop();
+		};
+	</script>
+</body>
+</html>
+
